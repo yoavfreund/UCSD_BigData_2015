@@ -1,0 +1,19 @@
+yoav-freunds-PowerBook-G4-retina:weather.mapreduce yoavfreund$ s3cmd ls s3://Weather.GHNC/
+2014-04-30 16:36 1511481989   s3://Weather.GHNC/ALL.csv.gz   
+All of the data, by year, Should already be loaded into hdfs:/weather/weather.csv
+2014-05-20 17:44   5672567   s3://Weather.GHNC/Partition_Tree.pkl
+A file containing a binary partition tree of the stations (by weight = number of measurement years)
+2014-05-18 01:11  81159389   s3://Weather.GHNC/Statistics.pkl.gz
+Statistics of the stations in raw form
+2014-05-18 01:41  79610576   s3://Weather.GHNC/compiled_statistics.pkl.gz
+Statistics of the stations  orgranized as Pandas Tables.
+
+Files imported from the original respository
+2014-05-05 03:00       218   s3://Weather.GHNC/data-source.txt
+2014-05-05 03:00     22422   s3://Weather.GHNC/ghcnd-readme.txt
+2014-05-05 03:01   7334424   s3://Weather.GHNC/ghcnd-stations.txt
+Information about each station
+2014-05-18 04:10   1826703   s3://Weather.GHNC/stations.pkl.gz
+ghcnd-stations.txt organized as a pandas table.
+2014-05-05 03:00   7760844   s3://Weather.GHNC/ghcnd-stations_buffered.txt
+2014-05-05 03:02       270   s3://Weather.GHNC/ghcnd-version.txt

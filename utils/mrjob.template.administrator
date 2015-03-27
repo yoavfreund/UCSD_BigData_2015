@@ -1,0 +1,121 @@
+# Create a persistent EMR job flow to run jobs in. WARNING: do not run this
+# without mrjob.tools.emr.terminate_idle_job_flows in your crontab; job flows
+# left idle can quickly become expensive!
+runners:
+  name: MRJob-Cluster-6
+  owner: Yoav_Freund
+  emr:
+    # Region to connect to S3 and EMR on (e.g. us-west-1).
+    aws_region: us-east-1
+    # Availability zone to run the job flow on
+    # aws_availability_zone: us-east-1d
+    aws_access_key_id: AKIAI2I4AYCHMMTGO2VA
+    aws_secret_access_key: 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
+    # alternate tmp dir
+    #base_tmp_dir: /scratch/mrjob
+    #bootstrap:
+    #	- sudo apt-get install python-pandas
+    #bootstrap_action: BOOTSTRAP_ACTIONS
+    #                    Raw bootstrap action scripts to run before any of the
+    #                    other bootstrap steps. You can use bootstrap-action
+    #                    more than once. Local scripts will be automatically
+    #                    uploaded to S3. To add arguments, just use quotes:
+    #                    "foo.sh arg1 arg2"
+    #bootstrap_cmd: BOOTSTRAP_CMDS
+    #                    Commands to run on the master node to set up
+    #                    libraries, etc. You can use bootstrap-cmd more than
+    #                    once. Use mrjob.conf to specify arguments as a list to
+    #                    be run directly.
+    #bootstrap_file: BOOTSTRAP_FILES
+    #                    File to upload to the master node before running
+    #                    bootstrap_cmds (for example, debian packages). These
+    #                    will be made public on S3 due to a limitation of the
+    #                    bootstrap feature. You can use bootstrap-file more
+    #                    than once.
+    #bootstrap_python_package: [numpy,scipy,pandas]
+    #                    Path to a Python module to install on EMR. These
+    #                    should be standard python module tarballs where you
+    #                    can cd into a subdirectory and run ``sudo python
+    #                    setup.py install``. You can use bootstrap-python-
+    #                    package more than once.
+    #disable_emr_debugging:
+    #                    Disable storage of Hadoop logs in SimpleDB
+    ec2_core_instance_bid_price: '0.10'
+    #                    Bid price to specify for core (or "slave") nodes when
+    #                    setting them up as EC2 spot instances (you probably
+    #                    only want to set a bid price for task instances).
+    ec2_core_instance_type: c3.xlarge
+    #ec2_slave_instance_type: EC2_CORE_INSTANCE_TYPE
+    #                    Type of EC2 instance for core (or "slave") nodes only
+    #ec2_instance_type: EC2_INSTANCE_TYPE
+    #                    Type of EC2 instance(s) to launch (e.g. m1.small,
+    #                    c1.xlarge, m2.xlarge). See http://aws.amazon.com/ec2
+    #                    /instance-types/ for the full list.
+    ec2_key_pair: HadoopKeyPair
+    ec2_key_pair_file: /Users/yoavfreund/.ssh/HadoopKeyPair.pem
+    #                    Name of the SSH key pair you set up for EMR
+    #ec2_master_instance_bid_price: '0.30'
+    #                    Bid price to specify for the master node when setting
+    #                    it up as an EC2 spot instance (you probably only want
+    #                    to set a bid price for task instances).
+    ec2_master_instance_type: m3.xlarge
+    #                    Type of EC2 instance for master node only
+    #ec2_task_instance_bid_price: EC2_TASK_INSTANCE_BID_PRICE
+    #                    Bid price to specify for task nodes when setting them
+    #                    up as EC2 spot instances.
+    #ec2_task_instance_type: EC2_TASK_INSTANCE_TYPE
+    #                    Type of EC2 instance for task nodes only
+    num_ec2_core_instances: 5
+    #                    Number of EC2 instances to start as core (or "slave")
+    #                    nodes. Incompatible with num-ec2-instances.
+    #num_ec2_instances: NUM_EC2_INSTANCES
+    #                    Total number of EC2 instances to launch
+    #num_ec2_task_instances: NUM_EC2_TASK_INSTANCES
+    #                    Number of EC2 instances to start as task nodes.
+    #                    Incompatible with num-ec2-instances.
+    #emr_endpoint: EMR_ENDPOINT
+    #                    Optional host to connect to when communicating with S3
+    #                    (e.g. us-west-1.elasticmapreduce.amazonaws.com).
+    #                    Default is to infer this from aws_region.
+    enable_emr_debugging: True
+    #                    Enable storage of Hadoop logs in SimpleDB
+    visible_to_all_users: True
+    # Make job-flow visible to all IAM accounts.
+    #hadoop_version: HADOOP_VERSION
+    #                    Version of Hadoop to specify to EMR or to emulate for
+    #                    -r local. Default is 0.20.
+    max_hours_idle: 24
+    #                    If we create a persistent job flow, have it
+    #                    automatically terminate itself after it's been idle
+    #                    this many hours.
+    #mins_to_end_of_hour: MINS_TO_END_OF_HOUR
+    #                    If max-hours-idle is set, control how close to the
+    #                    end of an EC2 billing hour the job flow can
+    #                    automatically terminate itself (default is 5 minutes).
+    #no_pool_emr_job_flows
+    #                    Don't try to run our job on a pooled job flow.
+    #pool_emr_job_flows:
+    #                    Add to an existing job flow or create a new one that
+    #                    does not terminate when the job completes. Overrides
+    #                    other job flow-related options including EC2 instance
+    #                    configuration. Joins pool "default" if
+    #                    emr_job_flow_pool_name is not specified. WARNING: do
+    #                    not run this without
+    #                    mrjob.tools.emr.terminate_idle_job_flows in your
+    #                    crontab; job flows left idle can quickly become
+    #                    expensive!
+    # pool_name: YoavsPool
+    #                    Specify a pool name to join. Set to "default" if not
+    #                    specified.
+    #s3_endpoint: S3_ENDPOINT
+    #                    Host to connect to when communicating with S3 (e.g. s3
+    #                    -us-west-1.amazonaws.com). Default is to infer this
+    #                    from region (see aws-region).
+    s3_log_uri: s3://yoav.hadoop/logs/
+    #                    URI on S3 to write logs into
+    s3_scratch_uri: s3://yoav.hadoop/scratch/
+    #                    URI on S3 to use as our temp directory.
+    #s3_sync_wait_time: S3_SYNC_WAIT_TIME
+    #                    How long to wait for S3 to reach eventual consistency.
+    #                    This is typically less than a second (zero in us-west)
+    #                    but the default is 5.0 to be safe.

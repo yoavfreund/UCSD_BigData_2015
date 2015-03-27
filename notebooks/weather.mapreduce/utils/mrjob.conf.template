@@ -1,0 +1,13 @@
+# This is a mrjob cnfiguration file that should work 
+# for the students in the UCSD big data class
+# 
+runners:
+  name: give this job a name!
+  owner: Write your name here!
+  emr:
+    # Region to connect to S3 and EMR on (e.g. us-west-1).
+    aws_region: us-east-1
+    aws_access_key_id: %s
+    aws_secret_access_key: %s
+
+
