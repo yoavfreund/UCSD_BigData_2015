@@ -1,19 +1,30 @@
+#!/usr/bin/env python
 from glob import glob
 from string import strip
 from os import chdir,getcwd
-from mrjob.emr import EMRJobRunner
+import boto.ec2
 import json,pprint
-
+from os.path import isfile
 import sys,os
+
 #possible home directories for "UCSD_Big_data"
 home_dirs=['/home/ubuntu','/Users/yoavfreund/BigData']
 
+
 class AWS_keypair_management:
-    def test_key_pair(self,Access_Key_Id,Secret_Access_Key):
+    def test_key_pair(self, aws_access_key_id, aws_secret_access_key):
+
         try:
-            JobRunner = EMRJobRunner(aws_access_key_id=Access_Key_Id,aws_secret_access_key=Secret_Access_Key)
+            conn = boto.ec2.connect_to_region("us-east-1",
+                                              aws_access_key_id=aws_access_key_id,
+                                              aws_secret_access_key=aws_secret_access_key)
+
+            conn.get_all_regions()
+            conn.close()
             return True
-        except:
+        except boto.ec2.EC2Connection.ResponseError:
+            print "AWS Access Key ID and Access Key are incorrect!"
+            conn.close()
             return False
 
     def Get_Working_Credentials(self,path):
@@ -28,32 +39,33 @@ class AWS_keypair_management:
         Key_Table={}
         bad_key_files=[]
         for filename in glob('*'):
-            with open(filename,'r') as file:
-                header_line=strip(file.readline())
-                ######## Credentials ###########
-                if header_line==credentials_header:
-                    for line in file.readlines():
-                        (User_Name,Access_Key_Id,Secret_Access_Key)=strip(line).split(',')
-                        User_Name=User_Name[1:-1]
-                        print filename,'AWS creds:',User_Name,Access_Key_Id
-                        if self.test_key_pair(Access_Key_Id,Secret_Access_Key):
-                            print "an active key pair"
+            if isfile(filename):
+                with open(filename,'r') as file:
+                    header_line=strip(file.readline())
+                    ######## Credentials ###########
+                    if header_line==credentials_header:
+                        for line in file.readlines():
+                            (User_Name,Access_Key_Id,Secret_Access_Key)=strip(line).split(',')
+                            User_Name=User_Name[1:-1]
+                            print filename,'AWS creds:',User_Name,Access_Key_Id
+                            if self.test_key_pair(Access_Key_Id,Secret_Access_Key):
+                                print "an active key pair"
+                                if not User_Name in Key_Table.keys():
+                                    Key_Table[User_Name]={'Creds':[], 'Passwords':[]}
+                                Key_Table[User_Name]['Creds'].append({
+                                    'Access_Key_Id':Access_Key_Id,'Secret_Access_Key':Secret_Access_Key})
+                            else:
+                                print filename,"an inactive key pair"
+                                bad_key_files.append(filename)
+                    ######## Passwords ###########
+                    if header_line==passwords_header:
+                        for line in file.readlines():
+                            (User_Name,password,direct_url)=strip(line).split(',')
+                            User_Name=User_Name[1:-1]
+                            print filename,' Password for ',User_Name
                             if not User_Name in Key_Table.keys():
                                 Key_Table[User_Name]={'Creds':[], 'Passwords':[]}
-                            Key_Table[User_Name]['Creds'].append({
-                                'Access_Key_Id':Access_Key_Id,'Secret_Access_Key':Secret_Access_Key})
-                        else:
-                            print filename,"an inactive key pair"
-                            bad_key_files.append(filename)
-                ######## Passwords ###########
-                if header_line==passwords_header:
-                    for line in file.readlines():
-                        (User_Name,password,direct_url)=strip(line).split(',')
-                        User_Name=User_Name[1:-1]
-                        print filename,' Password for ',User_Name
-                        if not User_Name in Key_Table.keys():
-                            Key_Table[User_Name]={'Creds':[], 'Passwords':[]}
-                        Key_Table[User_Name]['Passwords'].append(password)
+                            Key_Table[User_Name]['Passwords'].append(password)
         chdir(old_dir)
         return Key_Table,bad_key_files
 
@@ -99,6 +111,3 @@ if __name__=='__main__':
         password=entry['Passwords'][0]
         file.write(Template%(username,aws_id,aws_secret,password))
         file.close()
-
-    
-
