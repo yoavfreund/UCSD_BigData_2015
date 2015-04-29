@@ -9,5 +9,7 @@ runners:
     aws_region: us-east-1
     aws_access_key_id: %s
     aws_secret_access_key: %s
+    s3_scratch_uri: %s
+    s3_log_uri: %s
 
 
