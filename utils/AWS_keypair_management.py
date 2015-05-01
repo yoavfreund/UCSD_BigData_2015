@@ -2,7 +2,7 @@
 from glob import glob
 from string import strip
 from os import chdir,getcwd
-import boto.ec2
+import boto.s3
 import json,pprint
 from os.path import isfile
 import sys,os
@@ -15,16 +15,13 @@ class AWS_keypair_management:
     def test_key_pair(self, aws_access_key_id, aws_secret_access_key):
 
         try:
-            conn = boto.ec2.connect_to_region("us-east-1",
-                                              aws_access_key_id=aws_access_key_id,
-                                              aws_secret_access_key=aws_secret_access_key)
-
-            conn.get_all_regions()
-            conn.close()
+            s3 = boto.connect_s3(aws_access_key_id=aws_access_key_id,
+                                 aws_secret_access_key=aws_secret_access_key)
+            s3.close()
             return True
-        except boto.ec2.EC2Connection.ResponseError:
+        except Exception, e:
             print "AWS Access Key ID and Access Key are incorrect!"
-            conn.close()
+            s3.close()
             return False
 
     def Get_Working_Credentials(self,path):
