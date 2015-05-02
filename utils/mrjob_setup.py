@@ -8,7 +8,7 @@ from glob import glob
 import AWS_keypair_management
 import pickle
 from os.path import expanduser
-import boto.ec2
+import boto.s3
 import time
 import curses_menu
 import logging
@@ -52,10 +52,8 @@ def collect_credentials():
     secret_key = entry['Creds'][0]['Secret_Access_Key']
 
     try:
-        # TODO: make us-east-1 variable
-        conn = boto.ec2.connect_to_region("us-east-1",
-                                          aws_access_key_id=key_id,
-                                          aws_secret_access_key=secret_key)
+        s3 = boto.connect_s3(aws_access_key_id=key_id,
+                             aws_secret_access_key=secret_key)
     except Exception, e:
         logging.info("There was an error connecting to AWS: %s" % e)
         sys.exit("There was an error connecting to AWS: %s" % e)
@@ -69,10 +67,22 @@ def collect_credentials():
 
     logging.info("Asking for s3 bucket")
     s3_bucket = ""
+    bucket_exists = False
 
-    while not s3_bucket.startswith("s3://") or not s3_bucket.endswith("/"):
+    while not s3_bucket.startswith("s3://") or not s3_bucket.endswith("/") or not bucket_exists:
         s3_bucket = raw_input("What is your S3 bucket in \"s3://bucket-name/\" format: ")
         logging.info("s3 bucket raw input: %s" % s3_bucket)
+
+        bucket_name = s3_bucket.replace('s3://', '').replace('/', '')
+
+        try:
+            s3.get_bucket(bucket_name)
+            bucket_exists = True
+            logging.info("%s exists!" % s3_bucket)
+        except Exception, e:
+            bucket_exists = False
+            print "%s does not exist on AWS S3. Please make sure you are entering the correct bucket name." % s3_bucket
+            logging.info("%s does not exist!" % s3_bucket)
 
     logging.info("s3 bucket: %s" % s3_bucket)
 
@@ -123,7 +133,7 @@ def collect_credentials():
     pickle.dump(new_credentials, pickle_file)
     pickle_file.close()
     logging.info("Saved %s/Creds.pkl" % vault)
-    conn.close()
+    s3.close()
 
     # Create ~/.mrjob.conf with AWS credentials
     s3_scratch_uri = "%stmp" % s3_bucket
