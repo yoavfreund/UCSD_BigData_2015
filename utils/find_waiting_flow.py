@@ -7,13 +7,17 @@ def find_waiting_flow(aws_access_key_id,aws_secret_access_key,ssh_key_pair_file=
     job_id='NONE'
     waiting_flows=[]
     for flow in job_flows:
-        if flow.state=='WAITING':
-            waiting_flows.append(flow)
-            print flow.jobflowid,flow.state
-            ip_address=flow.masterpublicdnsname
-            if ssh_key_pair_file != '':
-                print 'ssh -i %s hadoop@%s'%(ssh_key_pair_file,ip_address)
-            job_id=flow.jobflowid
+        try:
+            if flow.state=='WAITING':
+                waiting_flows.append(flow)
+                print flow.jobflowid,flow.state
+                job_id=flow.jobflowid
+                ip_address=flow.masterpublicdnsname
+                if ssh_key_pair_file != '':
+                    print 'ssh -i %s hadoop@%s'%(ssh_key_pair_file,ip_address)
+                    job_id=flow.jobflowid
+        except Exception:
+            continue
     return job_id
 
 if __name__=='__main__':
