@@ -27,21 +27,24 @@ class MRWordFreqCount(MRJob):
 
     def mapper(self, _, line):
         for word in WORD_RE.findall(line):
-            logfile.write('mapper '+word.lower()+'\n')
+            #logfile.write('mapper '+word.lower()+'\n')
+            self.increment_counter('group', 'mapper', 1)
             yield (word.lower(), 1)
 
     def combiner(self, word, counts):
         #yield (word, sum(counts))
         l_counts=[c for c in counts]  # extract list from iterator
         S=sum(l_counts)
-        logfile.write('combiner '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
+        #logfile.write('combiner '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
+        self.increment_counter('group', 'combiner', 1)
         yield (word, S)
 
     def reducer(self, word, counts):
         #yield (word, sum(counts))
         l_counts=[c for c in counts]  # extract list from iterator
         S=sum(l_counts)
-        logfile.write('reducer '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
+        #logfile.write('reducer '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
+        self.increment_counter('group', 'reducer', 1)
         yield (word, S)
 
 if __name__ == '__main__':
