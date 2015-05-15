@@ -15,37 +15,48 @@
 """The classic MapReduce job: count the frequency of words.
 """
 from mrjob.job import MRJob
+from mrjob.step import MRStep
 import re
 from sys import stderr
 
 WORD_RE = re.compile(r"[\w']+")
+Large=10000000  # maximal number of occurances of a single word.
 
-#logfile=open('log','w')
-logfile=stderr
+logfile=open('logFile','w')
+#logfile=stderr
 
 class MRWordFreqCount(MRJob):
 
-    def mapper(self, _, line):
+    def mapper1(self, _, line):
         for word in WORD_RE.findall(line):
-            #logfile.write('mapper '+word.lower()+'\n')
-            self.increment_counter('group', 'mapper', 1)
+            logfile.write('mapper '+word.lower()+'\n')
             yield (word.lower(), 1)
 
-    def combiner(self, word, counts):
+    def reducer1(self, word, counts):
         #yield (word, sum(counts))
         l_counts=[c for c in counts]  # extract list from iterator
         S=sum(l_counts)
-        #logfile.write('combiner '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
-        self.increment_counter('group', 'combiner', 1)
+        logfile.write('reducer '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
         yield (word, S)
+        
+    def mapper2(self,word,count):
+        logfile.write('mapper2 '+word+': '+str(count)+'\n')
+        yield('%010d'%count,word) # add leading zeros so that lexical sorting is the same as numerical
+        
+    def reducer2(self,count,word):
+        wlist=[w for w in word]
+        logfile.write('reducer2 '+count+': '+wlist[0]+'\n')
+        yield(count,wlist)
+        
+    def steps(self):
+        return [
+            MRStep(mapper=self.mapper1,
+                   reducer=self.reducer1),
+            MRStep(mapper=self.mapper2,
+                   reducer=self.reducer2)
+        ]
 
-    def reducer(self, word, counts):
-        #yield (word, sum(counts))
-        l_counts=[c for c in counts]  # extract list from iterator
-        S=sum(l_counts)
-        #logfile.write('reducer '+word+' ['+','.join([str(c) for c in l_counts])+']='+str(S)+'\n')
-        self.increment_counter('group', 'reducer', 1)
-        yield (word, S)
+
 
 if __name__ == '__main__':
     MRWordFreqCount.run()
