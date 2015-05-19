@@ -18,7 +18,7 @@ def find_waiting_flow(aws_access_key_id,aws_secret_access_key,ssh_key_pair_file=
                     job_id=flow.jobflowid
         except Exception:
             continue
-    return job_id
+    return job_id,waiting_flows
 
 if __name__=='__main__':
     import os,sys, pickle
