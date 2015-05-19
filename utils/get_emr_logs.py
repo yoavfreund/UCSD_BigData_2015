@@ -85,7 +85,14 @@ if __name__ == "__main__":
     task_path = "log/%s/task-attempts" % cluster_id
     task_index = int(selected_step) + 1
 
-    bucket = s3_conn.get_bucket('mas-dse-emr')
+    bucket_name_list = ["mas-dse-emr", "cse255-emr"]
+
+    for bucket_name in bucket_name_list:
+        try:
+            bucket = s3_conn.get_bucket(bucket_name)
+            break
+        except Exception, e:
+            continue
 
     # Download step logs
     for key in bucket.list(steps_path):
