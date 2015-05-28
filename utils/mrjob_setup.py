@@ -166,11 +166,24 @@ def collect_credentials():
     pickle.dump(new_credentials, pickle_file)
     pickle_file.close()
     logging.info("Saved %s/Creds.pkl" % vault)
+
+    # Check if one of the log buckets exists
+    log_bucket = ""
+
+    log_bucket_name_list = ["mas-dse-emr", "cse255-emr"]
+
+    for log_bucket_name in log_bucket_name_list:
+        try:
+            log_bucket = s3.get_bucket(log_bucket_name).name
+            break
+        except Exception, e:
+            continue
+
     s3.close()
 
     # Create ~/.mrjob.conf with AWS credentials
-    s3_scratch_uri = "%stmp" % s3_bucket
-    s3_log_uri = "%slogs" % s3_bucket
+    s3_scratch_uri = "%stmp/" % s3_bucket
+    s3_log_uri = "s3://%s/log/" % log_bucket
 
     logging.info("Creating ~/.mrjob.conf")
     template = open('mrjob.conf.template').read()
