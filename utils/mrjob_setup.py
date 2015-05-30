@@ -86,6 +86,39 @@ def collect_credentials():
 
     logging.info("s3 bucket: %s" % s3_bucket)
 
+    pem = ""
+
+    # Get the pem files in the vault
+    pem_files = glob(vault+'/*.pem')
+
+    # Log the pem files found in the vault directory
+    for pem_file in pem_files:
+        logging.info("Found .pem file: %s" % pem_file)
+
+    # Display the .pem files using a menu, otherwise just select the one
+    if len(pem_files) > 0:
+        # Log the pem files found
+        logging.info("Multiple .pem files found:")
+        for pem_file in pem_files:
+            logging.info("Found .pem file: %s " % pem_file)
+
+        # Add an option in case the user doesn't have the .pem file
+        pem_files.append("I don't have the EMR .pem file")
+
+        title = "Selected the .pem file provided by the course TA to use with EMR? Below is the list of .pem files."
+        top_instructions = "Use the arrow keys make your selection and press return to continue"
+        bottom_instructions = ""
+        user_input = curses_menu.curses_menu(pem_files, title=title, top_instructions=top_instructions,
+                                             bottom_instructions=bottom_instructions)
+        if len(pem_files) == int(user_input) + 1:
+            pem = ""
+            logging.info("Selected .pem file: I don't have the EMR .pem file")
+        else:
+            pem = pem_files[int(user_input)]
+            logging.info("Selected .pem file: %s " % pem)
+    else:
+        logging.info("No .pem files found in vault: %s" % vault)
+
     new_credentials = {}
     # If a Creds.pkl file already exists, make a copy, read the non 'launcher' credentials
     if os.path.isfile(vault + "/Creds.pkl"):
@@ -133,16 +166,36 @@ def collect_credentials():
     pickle.dump(new_credentials, pickle_file)
     pickle_file.close()
     logging.info("Saved %s/Creds.pkl" % vault)
+
+    # Check if one of the log buckets exists to determine which course the student is in
+    log_bucket = ""
+    pem_name = ""
+
+    course_properties = [
+        {'log_bucket': "cse255-emr", 'pem_name': "May2015HadoopKeyPair"},
+        {'log_bucket': "mas-dse-emr", 'pem_name': "sachin_student_sachin-Aspire-E5-571P_1426883088"}
+    ]
+
+    for course_property in course_properties:
+        try:
+            log_bucket = s3.get_bucket(course_property["log_bucket"]).name
+            pem_name = course_property["pem_name"]
+            break
+        except Exception, e:
+            log_bucket = ""
+            pem_name = ""
+            continue
+
     s3.close()
 
     # Create ~/.mrjob.conf with AWS credentials
-    s3_scratch_uri = "%stmp" % s3_bucket
-    s3_log_uri = "%slogs" % s3_bucket
+    s3_scratch_uri = "%stmp/" % s3_bucket
+    s3_log_uri = "s3://%s/log/" % log_bucket
 
     logging.info("Creating ~/.mrjob.conf")
     template = open('mrjob.conf.template').read()
 
-    filled_template = template % (key_id, secret_key, s3_scratch_uri, s3_log_uri)
+    filled_template = template % (key_id, secret_key, s3_scratch_uri, s3_log_uri, pem_name, pem)
     logging.info("~/.mrjob.conf template filled")
 
     home = os.environ['HOME']
