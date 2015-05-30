@@ -167,16 +167,23 @@ def collect_credentials():
     pickle_file.close()
     logging.info("Saved %s/Creds.pkl" % vault)
 
-    # Check if one of the log buckets exists
+    # Check if one of the log buckets exists to determine which course the student is in
     log_bucket = ""
+    pem_name = ""
 
-    log_bucket_name_list = ["mas-dse-emr", "cse255-emr"]
+    course_properties = [
+        {'log_bucket': "cse255-emr", 'pem_name': "May2015HadoopKeyPair"},
+        {'log_bucket': "mas-dse-emr", 'pem_name': "sachin_student_sachin-Aspire-E5-571P_1426883088"}
+    ]
 
-    for log_bucket_name in log_bucket_name_list:
+    for course_property in course_properties:
         try:
-            log_bucket = s3.get_bucket(log_bucket_name).name
+            log_bucket = s3.get_bucket(course_property["log_bucket"]).name
+            pem_name = course_property["pem_name"]
             break
         except Exception, e:
+            log_bucket = ""
+            pem_name = ""
             continue
 
     s3.close()
@@ -188,7 +195,7 @@ def collect_credentials():
     logging.info("Creating ~/.mrjob.conf")
     template = open('mrjob.conf.template').read()
 
-    filled_template = template % (key_id, secret_key, s3_scratch_uri, s3_log_uri, pem)
+    filled_template = template % (key_id, secret_key, s3_scratch_uri, s3_log_uri, pem_name, pem)
     logging.info("~/.mrjob.conf template filled")
 
     home = os.environ['HOME']
