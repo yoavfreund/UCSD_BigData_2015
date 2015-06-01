@@ -67,11 +67,12 @@ if __name__ == "__main__":
 
     # List EMR Steps
     steps = emr_conn.list_steps(clusters.clusters[int(selected_cluster)].id)
-
+    step_cnt = 0
     for index, step in enumerate(steps.steps):
         time = dateutil.parser.parse(step.status.timeline.creationdatetime).astimezone(tz.tzlocal())
         print "[%s] NAME: %s - STATE: %s - START TIME: %s" % (index, step.name, step.status.state,
                                                               time.strftime("%Y-%m-%d %H:%M"))
+        step_cnt += 1
 
     selected_step = input("Select a Step: ")
 
@@ -83,7 +84,8 @@ if __name__ == "__main__":
 
     steps_path = "log/%s/steps/%s" % (cluster_id, step_id)
     task_path = "log/%s/task-attempts" % cluster_id
-    task_index = int(selected_step) + 1
+    task_index = step_cnt - int(selected_step)
+    print task_index
 
     bucket_name_list = ["mas-dse-emr", "cse255-emr"]
 
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     # Download task logs (if any)
     for key in bucket.list(task_path):
 
-        if "_%s" % str(task_index).zfill(4) in key.name:
+        if "_%s_" % str(task_index).zfill(4) in key.name:
 
             if not os.path.isdir(os.path.dirname(key.name)):
                 os.makedirs(os.path.dirname(key.name))
