@@ -25,6 +25,9 @@ for job in job_flows:
 
 input_file = 'hdfs://'+node+':9000/mas-dse-public/ALL.csv'
 ``` 
+
+The command for executing this:
+
+```csh
 !python mr_word_freq_count.py -r emr $input_file --emr-job-flow-id=$flow_id --output-dir=$output_dir  > counts_emr.txt
- 
-Just take care of indentations.
+```
