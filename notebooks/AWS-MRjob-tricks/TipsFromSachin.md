@@ -1,6 +1,6 @@
 ###Some other points that keep coming up ###
 
-- To get namenodes and to connect to hdfs the preferred method is to use `utils/find_waiting_flow.py`.  
+- To get a list of dataflows and their status the preferred method is `utils/find_waiting_flow.py`.  
 Other options are [here](AccessingNameNodes.md) and 
 [aws cookbook](http://seed.ucsd.edu/mediawiki/index.php/AWS_CookBook)
 
