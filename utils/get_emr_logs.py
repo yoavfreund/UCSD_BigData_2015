@@ -61,13 +61,17 @@ if __name__ == "__main__":
     for index, cluster in enumerate(clusters.clusters):
         print "[%s] %s" % (index, cluster.id)
 
-    selected_cluster = input("Select a Cluster: ")
+    # if there is a command line arg, use it for the cluster_id
+    if len(sys.argv) > 1:
+        cluster_id = sys.argv[1]
+    else:
+        selected_cluster = input("Select a Cluster: ")
+        cluster_id = clusters.clusters[int(selected_cluster)].id
 
-    cluster_id = clusters.clusters[int(selected_cluster)].id
     print cluster_id
 
     # List EMR Steps
-    steps = emr_conn.list_steps(clusters.clusters[int(selected_cluster)].id)
+    steps = emr_conn.list_steps(cluster_id)
     step_cnt = 0
     for index, step in enumerate(steps.steps):
         time = dateutil.parser.parse(step.status.timeline.creationdatetime).astimezone(tz.tzlocal())
@@ -75,7 +79,11 @@ if __name__ == "__main__":
                                                               time.strftime("%Y-%m-%d %H:%M"))
         step_cnt += 1
 
-    selected_step = input("Select a Step: ")
+    # if there are two command line args, use the second one as the selected step index
+    if len(sys.argv) > 2:
+        selected_step = sys.argv[2]
+    else:
+        selected_step = input("Select a Step: ")
 
     step_id = steps.steps[int(selected_step)].id
     print step_id
