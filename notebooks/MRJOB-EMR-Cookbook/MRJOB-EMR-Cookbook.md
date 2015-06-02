@@ -21,8 +21,19 @@ There are three possibilities for the location on the input file. In general, th
   - `s3://yoavfreunddefault/simple_mrjob/part-00000` for a single file
 - **HDFS**: If a file has been mounted on hdfs for you (this is done by the TAs) then you can access it by specifying `hdfs://'+node+':9000/weather.raw_data/ALL.csv` where "node" is the DNS name of the namenode for the job-flow you are using (provided by the script `find_waiting_flow` above.)
 ###### Other input files
-You often need to provide the tasks with a 
+You often need to provide the tasks with a data files (for example: centroid locations in kmeans). You do that by defining a new parameter using the `add_file_option` in mrjob. For example:
+   ```python
+   def configure_options(self):
+        super(SqliteJob, self).configure_options()
+        self.add_file_option('--database')
+   ```
+You can then give the parameter `--database` on the command line. This file can be local or on S3. Mrjob will do the work involved in making this file available to the tasks on EMR.  
 
+Inside the task you access the file usin the command
+
+```python
+file=open(self.options.database)
+```
 
 - You cannot write to a file in hdfs. Any file that you want to maintain between runs
 
