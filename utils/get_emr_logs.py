@@ -8,6 +8,7 @@ import dateutil.parser
 from dateutil import tz
 from boto.emr.connection import EmrConnection
 from boto.s3.connection import S3Connection
+import gzip
 
 
 def read_credentials():
@@ -85,6 +86,7 @@ if __name__ == "__main__":
     steps_path = "log/%s/steps/%s" % (cluster_id, step_id)
     task_path = "log/%s/task-attempts" % cluster_id
     task_index = step_cnt - int(selected_step)
+    local_task_path = ""
     print task_index
 
     bucket_name_list = ["mas-dse-emr", "cse255-emr"]
@@ -113,6 +115,8 @@ if __name__ == "__main__":
 
         if "_%s_" % str(task_index).zfill(4) in key.name:
 
+            local_task_path = os.path.dirname(key.name)[:-len(os.path.dirname(key.name).split("/")[-1])]
+
             if not os.path.isdir(os.path.dirname(key.name)):
                 os.makedirs(os.path.dirname(key.name))
 
@@ -121,3 +125,29 @@ if __name__ == "__main__":
                 print key.name
             except Exception, e:
                 print "Failure: %s : %s" % (key.name, e)
+
+    if local_task_path != "":
+        stderr = open("%s/stderr.txt" % local_task_path, 'a')
+        stdout = open("%s/stdout.txt" % local_task_path, 'a')
+        syslog = open("%s/syslog.txt" % local_task_path, 'a')
+
+        for root, dirs, files in os.walk(local_task_path):
+            for file in files:
+                if file == "stderr.gz":
+                    file_path = os.path.join(root, file)
+                    log = gzip.open(file_path, 'r')
+                    stderr.writelines(log)
+
+                if file == "stdout.gz":
+                    file_path = os.path.join(root, file)
+                    log = gzip.open(file_path, 'r')
+                    stdout.writelines(log)
+
+                if file == "syslog.gz":
+                    file_path = os.path.join(root, file)
+                    log = gzip.open(file_path, 'r')
+                    syslog.writelines(log)
+
+        stderr.close()
+        stdout.close()
+        syslog.close()
