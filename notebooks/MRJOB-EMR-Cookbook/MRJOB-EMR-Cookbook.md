@@ -1,4 +1,4 @@
-###Some other points that keep coming up ###
+
 
 - To get a list of dataflows and their status the preferred method is `utils/find_waiting_flow.py`.  
 Other options are [here](AccessingNameNodes.md) and 
