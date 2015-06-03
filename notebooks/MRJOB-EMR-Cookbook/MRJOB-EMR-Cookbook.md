@@ -48,7 +48,6 @@ For example:
 python  MRJOB_JOB.py --output-dir s3://my-bucket/output_dir/ --no-output s3://my-bucket/input_dir/
 ```
 ### Other useful information
-- Pandas, scikit-learn, numpy etc are now pre installed in the clusters. You can manually install any new package that you might require by sshing into the namenode as explained [here](HadoopClusterAccess.md)
-  You can manually import files to hdfs after sshing into the namenode as well.
-- Entire s3 directory can be read as input by giving the s3 directory path as input alongwith the forward slash i.e $input = s3://dse-sachin/inp_directory/ - Thanks Jennifer
-- Its generally helpful to profile your code to optimize execution time. Kevin has explained it in HipChat and you can read more on profilers here - Profilers - Thanks Kevin
+- You can SSH into the name node as explained [here](HadoopClusterAccess.md). You can manually import files to hdfs after sshing into the namenode.
+- Pandas, scikit-learn, numpy etc are now pre installed in the clusters. If you need to use other packages, you can either ask a TA to have it pre-installed on new clusters, or by using the `--bootstrap` option (see mrjob documentation).
+- Its generally helpful to profile your code to optimize execution time. Kevin provided the following description for how to use profiling.
