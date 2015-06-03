@@ -50,4 +50,4 @@ python  MRJOB_JOB.py --output-dir s3://my-bucket/output_dir/ --no-output s3://my
 ### Other useful information
 - You can SSH into the name node as explained [here](HadoopClusterAccess.md). You can manually import files to hdfs after sshing into the namenode.
 - Pandas, scikit-learn, numpy etc are now pre installed in the clusters. If you need to use other packages, you can either ask a TA to have it pre-installed on new clusters, or by using the `--bootstrap` option (see mrjob documentation).
-- Its generally helpful to profile your code to optimize execution time. Kevin provided the following description for how to use profiling.
+- Its generally helpful to profile your code to optimize execution time. You can read about profilers [in the python documentation here](https://docs.python.org/2/library/profile.html). 
