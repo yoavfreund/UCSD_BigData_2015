@@ -47,7 +47,11 @@ For example:
 ```sh
 python  MRJOB_JOB.py --output-dir s3://my-bucket/output_dir/ --no-output s3://my-bucket/input_dir/
 ```
+### Debugging tools
+- To debug your program on EMR, write log messages to `sys.stderr`. To find the output of these commands, use the script `utils/get_emr_logs.py`. The relevant `stderr` files will be under the subdirectory `task-attempts`.
+- If your job crashes without leaving a trace in `stderr`, you might want to use [Python core dump](https://pythonhosted.org/mrjob/guides/emr-advanced.html#enabling-python-core-dumps)
+- Its generally helpful to profile your code to optimize execution time. You can read about profilers [in the python documentation here](https://docs.python.org/2/library/profile.html). 
+
 ### Other useful information
 - You can SSH into the name node as explained [here](HadoopClusterAccess.md). You can manually import files to hdfs after sshing into the namenode.
 - Pandas, scikit-learn, numpy etc are now pre installed in the clusters. If you need to use other packages, you can either ask a TA to have it pre-installed on new clusters, or by using the `--bootstrap` option (see mrjob documentation).
-- Its generally helpful to profile your code to optimize execution time. You can read about profilers [in the python documentation here](https://docs.python.org/2/library/profile.html). 
