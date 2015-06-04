@@ -22,7 +22,7 @@ There are three possibilities for the location on the input file. In general, th
 - **HDFS**: If a file has been mounted on hdfs for you (this is done by the TAs) then you can access it by specifying `hdfs://'+node+':9000/weather.raw_data/ALL.csv` where "node" is the DNS name of the namenode for the job-flow you are using (provided by the script `find_waiting_flow` above.)
 
 ###### Other input files
-- If you want to upload files to the directory in which the task is executed you can use the `--file` option on the command line.
+- If you want to upload files to the directory in which the task is executed you can use the `--file` option on the command line. (See [MRJob documentation](https://pythonhosted.org/mrjob/guides/configs-all-runners.html#option-upload_files)
 - If you want to provide you tasks with data files whose name will be determined at run time (for example: centroid locations in kmeans). You do that by defining a  new parameter using the `add_file_option` in mrjob. For example:
 ```python
 def configure_options(self):
