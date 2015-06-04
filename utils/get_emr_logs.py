@@ -145,16 +145,25 @@ if __name__ == "__main__":
                     file_path = os.path.join(root, file)
                     log = gzip.open(file_path, 'r')
                     stderr.writelines(log)
+                    log.close()
+                    os.remove(file_path)
 
                 if file == "stdout.gz":
                     file_path = os.path.join(root, file)
                     log = gzip.open(file_path, 'r')
                     stdout.writelines(log)
+                    log.close()
+                    os.remove(file_path)
 
                 if file == "syslog.gz":
                     file_path = os.path.join(root, file)
                     log = gzip.open(file_path, 'r')
                     syslog.writelines(log)
+                    log.close()
+                    os.remove(file_path)
+
+                if not os.listdir(root):
+                    os.removedirs(root)
 
         stderr.close()
         stdout.close()
