@@ -134,6 +134,7 @@ if __name__ == "__main__":
             except Exception, e:
                 print "Failure: %s : %s" % (key.name, e)
 
+    # if there are any task logs, combine them and remove the individual task logs
     if local_task_path != "":
         stderr = open("%s/stderr.txt" % local_task_path, 'a')
         stdout = open("%s/stdout.txt" % local_task_path, 'a')
@@ -168,3 +169,10 @@ if __name__ == "__main__":
         stderr.close()
         stdout.close()
         syslog.close()
+
+        # Print all lines the contain #log#
+        if os.path.isfile("%s/stderr.txt" % local_task_path):
+            log = open("%s/stderr.txt" % local_task_path, 'r')
+            for line in log:
+                if "#log#" in line:
+                    print line.strip()
