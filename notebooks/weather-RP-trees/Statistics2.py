@@ -7,7 +7,6 @@ from numpy import *
 import numpy as np
 from random import random
 import sys,copy,traceback
-import pandas as pd
 
 class s:
     """ compute the mean of matrices (have to be of same size) """
@@ -15,25 +14,27 @@ class s:
         self.reset(mat)
         
     def reset(self,mat):
-        self.n=pd.DataFrame(data=zeros(shape(mat)))
-        self.sum=pd.DataFrame(data=zeros(shape(mat)))
+        self.n=zeros(shape(mat))
+        self.sum=zeros(shape(mat))
         
     def accum(self,value):
         """ Add a value to the statistics """
 
-        if type(value)!=pd.core.frame.DataFrame:
-            value=pd.DataFrame(data=value)
+        if type(value)!= ndarray:
+            raise Exception('in s.accum: type of value='+str(type(U))+', it should be numpy.ndarray')
  
         if shape(value) != shape(self.sum):
             raise Exception('in s.accum: shape of value:'+str(shape(value))+\
                             ' is not equal to shape of sum:'+str(shape(self.sum)))
-        self.sum+=value.fillna(0)
+        self.sum+=nan_to_num(value)
         self.n+=(1-isnan(value))
 
     def compute(self):
         """ Returns the counts and the means for each entry """
         self.mean = self.sum / self.n
-        return (self.n,self.mean)
+        self.mean = nan_to_num(self.mean)
+        self.count=nan_to_num(self.n)
+        return (self.count,self.mean)
 
     def add(self,other):
         """ add two statistics """
@@ -41,12 +42,12 @@ class s:
         self.sum += other.sum
         
     def to_lists(self):
-        return {'n':self.n.values.tolist(),\
-                'sum':self.sum.values.tolist()}
+        return {'n':self.n.tolist(),\
+                'sum':self.sum.tolist()}
 
     def from_lists(self,D):
-        self.n=pd.DataFrame(data=D['n'])
-        self.sum=pd.DataFrame(data=D['sum'])
+        self.n=array(D['n'])
+        self.sum=array(D['sum'])
 
 class VecStat:
     """ Compute first and second order statistics of vectors of a fixed size n """
@@ -90,7 +91,7 @@ class VecStat:
         # Compute covariance matrix
         (countC,meanC)=self.Cov.compute()
         cov=meanC-outer(meanV,meanV)
-        std=[cov.ix[i,i] for i in range(shape(self.Cov.sum)[0])]
+        std=[cov[i,i] for i in range(shape(self.Cov.sum)[0])]
         try:
             (eigvalues,eigvectors)=linalg.eig(cov)
             order=argsort(-abs(eigvalues))	# indexes of eigenvalues from largest to smallest
@@ -121,3 +122,25 @@ class VecStat:
         self.V.from_lists(D['V'])
         self.Cov.from_lists(D['Cov'])
         self.n=len(self.V.sum)
+
+
+if __name__ == "__main__":
+    ## Test code ##
+    vec1=array([0,nan,1,0,nan])
+    vec2=array([1,2,1,1,nan])
+    print 'vec1=\n',vec1,'\n vec2=\n',vec2
+
+    S1=s(vec1)
+    S1.accum(vec1)
+    S1.accum(vec2)
+    count,mean=S1.compute()
+    print 'First order statistics'
+    print 'count=\n',count,'\nmean=\n',mean
+
+    S2=VecStat(len(vec1))
+    S2.accum(vec1)
+    S2.accum(vec2)
+    EigenDecomp=S2.compute()
+    print 'second order statistics'
+    print EigenDecomp
+    
