@@ -97,7 +97,7 @@ class VecStat:
             order=argsort(-abs(eigvalues))	# indexes of eigenvalues from largest to smallest
             eigvalues=eigvalues[order]		# order eigenvalues
             eigvectors=eigvectors[order]	# order eigenvectors
-            eigvectors=eigvectors[1:k]		# keep only top k eigen-vectors
+            eigvectors=eigvectors[0:k]		# keep only top k eigen-vectors
             for v in eigvectors:
                 v=v[order]     # order the elements in each eigenvector
 
